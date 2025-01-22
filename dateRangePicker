@@ -1,0 +1,96 @@
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import type { PickersShortcutsItem } from '@mui/x-date-pickers/PickersShortcuts';
+import type { DateRange } from '@mui/x-date-pickers-pro/models';
+import { StaticDateRangePicker } from '@mui/x-date-pickers-pro/StaticDateRangePicker';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+
+const shortcutsItems: PickersShortcutsItem<DateRange<Dayjs>>[] = [
+  {
+    label: 'Today',
+    getValue: () => {
+      const today = dayjs();
+      return [today.startOf('day'), today.endOf('day')];
+    },
+  },
+  {
+    label: 'Yesterday',
+    getValue: () => {
+      const today = dayjs();
+      const prevWeek = today.subtract(1, 'day');
+      return [prevWeek.startOf('day'), prevWeek.endOf('day')];
+    },
+  },
+  {
+    label: 'Last 7 Days',
+    getValue: () => {
+      const today = dayjs();
+      return [today.subtract(7, 'day'), today];
+    },
+  },
+  {
+    label: 'Last 30 Days',
+    getValue: () => {
+      const today = dayjs();
+      return [today.subtract(30, 'day'), today];
+    },
+  },
+  {
+    label: 'This Month',
+    getValue: () => {
+      const today = dayjs();
+      return [today.startOf('month'), today.endOf('month')];
+    },
+  },
+  {
+    label: 'Last Month',
+    getValue: () => {
+      const today = dayjs();
+      const startOfLastMonth = today.subtract(1, 'month').startOf('month');
+      const endOfLastMonth = today.subtract(1, 'month').endOf('month');
+      return [startOfLastMonth, endOfLastMonth];
+    },
+  },
+  { label: 'Reset', getValue: () => [null, null] },
+];
+
+const DateRangePicker = (props: any) => {
+  const { value, onChange } = props;
+
+  const handleChange = (newValue: any[]) => {
+    const formattedValue = newValue.map((x) => x.format());
+    onChange(formattedValue);
+  };
+
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <StaticDateRangePicker
+        value={value.map(
+          (x: string | number | Dayjs | Date | null | undefined) => dayjs(x),
+        )}
+        onChange={handleChange}
+        slots={{
+          actionBar: () => null,
+        }}
+        slotProps={{
+          shortcuts: {
+            items: shortcutsItems,
+          },
+        }}
+      />
+    </LocalizationProvider>
+  );
+};
+
+export default DateRangePicker;
+
+
+// Add in global CSS to remove the Pro watermark of the MUI X License
+/*
+.MuiDateRangeCalendar-root {
+  & > div:first-child {
+    display: none;
+  }
+}
+*/ 
