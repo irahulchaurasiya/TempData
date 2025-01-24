@@ -1,0 +1,159 @@
+import { Box, MenuItem, Select } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { StaticDateRangePicker } from '@mui/x-date-pickers-pro/StaticDateRangePicker';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import { useState } from 'react';
+import AutocompleteField from '../AutocompleteField';
+import error from 'next/error';
+const today = dayjs();
+const shortcutsItems = [
+  {
+    label: 'Today',
+    getValue: () => [today.startOf('day'), today.endOf('day')],
+  },
+  {
+    label: 'Yesterday',
+    getValue: () => [
+      today.subtract(1, 'day').startOf('day'),
+      today.subtract(1, 'day').endOf('day'),
+    ],
+  },
+  {
+    label: 'Last 7 Days',
+    getValue: () => [today.subtract(7, 'day'), today],
+  },
+  {
+    label: 'Last Week',
+    getValue: () => [
+      today.subtract(1, 'week').startOf('week'),
+      today.subtract(1, 'week').endOf('week'),
+    ],
+  },
+  {
+    label: 'This Week',
+    getValue: () => [today.startOf('week'), today.endOf('week')],
+  },
+  {
+    label: 'Last 30 Days',
+    getValue: () => [today.subtract(30, 'day'), today],
+  },
+  {
+    label: 'Last Month',
+    getValue: () => [
+      today.subtract(1, 'month').startOf('month'),
+      today.subtract(1, 'month').endOf('month'),
+    ],
+  },
+  {
+    label: 'This Month',
+    getValue: () => [today.startOf('month'), today.endOf('month')],
+  },
+  {
+    label: 'Previous Year',
+    getValue: () => [
+      today.subtract(1, 'year').startOf('year'),
+      today.subtract(1, 'year').endOf('year'),
+    ],
+  },
+  {
+    label: 'This Year',
+    getValue: () => [today.startOf('year'), today.endOf('year')],
+  },
+  {
+    label: 'Reset',
+    getValue: () => [null, null],
+  },
+];
+
+const DateRangePicker = (props: any) => {
+  const { value, onChange } = props;
+  const [selectedShortcut, setSelectedShortcut] = useState<string | null>(null);
+
+  const handleShortcutChange = (shortcutLabel: string) => {
+    setSelectedShortcut(shortcutLabel);
+    const shortcut = shortcutsItems.find(
+      (item) => item.label === shortcutLabel,
+    );
+    if (shortcut) {
+      const newValue = shortcut.getValue();
+      onChange(newValue.map((x) => (x ? x.format() : null)));
+    }
+  };
+
+  const handleChange = (newValue: any[]) => {
+    const formattedValue = newValue.map((x) => x.format());
+    onChange(formattedValue);
+  };
+
+  const DateRangeSelectFields = (props: any) => {
+    const {
+      selectedShortcut,
+      handleShortcutChange,
+      shortcutsItems,
+    } = props;
+    return (
+        <Box className="mt-2 w-4/5">  
+          <Select
+            className="h-[28px] w-full"
+            value={selectedShortcut || ''}
+            onChange={(e) => handleShortcutChange(e.target.value)}
+            displayEmpty
+          >
+            <MenuItem className="text-gray-600" value="" disabled>
+              Select a date-range
+              </MenuItem>
+            {shortcutsItems.map((item) => (
+              <MenuItem key={item.label} value={item.label}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
+    )};
+
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Box className="flex flex-col items-center overflow-hidden">
+        {/* <Box className="mt-2 w-4/5">
+          <Select
+            className="h-[28px] w-full"
+            value={selectedShortcut || ''}
+            onChange={(e) => handleShortcutChange(e.target.value)}
+            displayEmpty
+          >
+            <MenuItem className="text-gray-600" value="" disabled>
+              Select a date-range
+            </MenuItem>
+            {shortcutsItems.map((item) => (
+              <MenuItem key={item.label} value={item.label}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box> */}
+        <DateRangeSelectFields
+          selectedShortcut={selectedShortcut}
+          handleShortcutChange={handleShortcutChange}
+          shortcutsItems={shortcutsItems}
+        />
+
+        <StaticDateRangePicker
+          className="-mt-4"
+          value={value.map(
+            (x: string | number | Dayjs | Date | null | undefined) => dayjs(x),
+          )}
+          onChange={handleChange}
+          slots={{
+            actionBar: () => null,
+          }}
+          disableFuture
+        />
+      </Box>
+    </LocalizationProvider>
+  );
+};
+
+export default DateRangePicker;
+
