@@ -157,3 +157,12 @@ const DateRangePicker = (props: any) => {
 
 export default DateRangePicker;
 
+
+// Add in global CSS to remove the Pro watermark of the MUI X License
+/*
+.MuiDateRangeCalendar-root {
+  & > div:first-child {
+    display: none;
+  }
+}
+*/ 
